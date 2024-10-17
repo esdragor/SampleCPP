@@ -1,0 +1,8 @@
+L'objectif du projet est de ramener une pomme a la maison
+
+Etape 1 : tu dois pouvoir aller chez le marchand et qu'il te propose de te vendre une pomme pour 200 pieces
+Etape 2, tu peux acheter la pomme (widget ?) sans rien payer
+Étape 3 : la pomme est désormais grabbable et quand tu appuie, il s'attache a ta main via une socket du squeletalmesh et tu peux te déplacer avec
+Étape 4 : tu peux lacher la pomme dans la zone jaune
+Etape 5 : tu peux gagner de l'argent en restant appuyer sur une touche dans la zone rouge (obligation d'avoir une loading bar pour montrer l'avancement) genre 50 pieces toutes les 5s
+Étape 6 : la pomme n'est plus achetable sans argent
