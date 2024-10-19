@@ -30,7 +30,7 @@ void AMyCharacterCpp::BeginPlay()
 {
 	Super::BeginPlay();
 	//log hello world
-	UE_LOG(LogTemp, Warning, TEXT("Hello World"));
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		// Ajouter l'Input Mapping Context à l'Enhanced Input System
@@ -84,21 +84,22 @@ void AMyCharacterCpp::JumpActionTriggered()
 	Jump();
 }
 
+void AMyCharacterCpp::InteractActionTriggered()
+{
+	if(IsInBuyerRange && !HasApple)
+	{
+		HasApple = true;
+		UE_LOG(LogTemp, Warning, TEXT("You have an apple"));
+		//enlever les thunes
+	}
+}
+
 // Called to bind functionality to input
 void AMyCharacterCpp::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMyCharacterCpp::Jump);
-	// PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMyCharacterCpp::StopJumping);
-	//
-	// PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacterCpp::MoveForward);
-	// PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacterCpp::MoveRight);
-	//
-	// PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	// PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-
-	// Cast de InputComponent vers UEnhancedInputComponent
+	
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -108,6 +109,7 @@ void AMyCharacterCpp::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
         
 		// Assigner l'Action de saut à une fonction
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMyCharacterCpp::JumpActionTriggered);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AMyCharacterCpp::InteractActionTriggered);
 	}
 
 }

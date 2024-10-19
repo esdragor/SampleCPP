@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Components/BoxComponent.h"
+#include "MyCharacterCpp.h"
 
 // Sets default values
 AMarketCPP::AMarketCPP()
@@ -29,8 +30,9 @@ void AMarketCPP::BeginPlay()
 void AMarketCPP::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
 	class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Log
-	if (OtherActor && (OtherActor != this))
+	//cast other actor to MyCharacterCpp
+	AMyCharacterCpp* Player = Cast<AMyCharacterCpp>(OtherActor);
+	if (Player && (OtherActor != this))
 	{
 		if (WidgetClass) // Vérifier si la classe de widget est définie
 		{
@@ -46,6 +48,7 @@ void AMarketCPP::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class
 			if (ActiveWidget)
 			{
 				ActiveWidget->AddToViewport(); // Ajouter le widget à l'écran
+				Player->IsInBuyerRange = true;
 			}
 		}
 	}
@@ -54,7 +57,8 @@ void AMarketCPP::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class
 void AMarketCPP::OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
                               class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor && (OtherActor != this))
+	AMyCharacterCpp* Player = Cast<AMyCharacterCpp>(OtherActor);
+	if (Player && (OtherActor != this))
 	{
 		if (WidgetClass) // Vérifier si la classe de widget est définie
 		{
@@ -63,6 +67,7 @@ void AMarketCPP::OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class A
 			{
 				ActiveWidget->RemoveFromParent();
 				ActiveWidget = nullptr;
+				Player->IsInBuyerRange = false;
 			}
 		}
 	}
