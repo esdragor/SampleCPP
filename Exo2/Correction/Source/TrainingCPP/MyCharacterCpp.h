@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Apple_Cpp.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -13,10 +14,6 @@
 #include "EnhancedInputSubsystems.h"
 
 #include "MyCharacterCpp.generated.h"
-
-
-
-
 
 
 UCLASS()
@@ -40,17 +37,22 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	
-
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void PerformLineTrace();
+	void SpawnApple();
 
 	bool IsInBuyerRange = false;
+	bool AppleSpawned = false;
 	bool HasApple = false;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AApple_Cpp> AppleToSpawn = nullptr;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -68,9 +70,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	AApple_Cpp* AppleClassToSpawn;*/
+
+	AApple_Cpp* AppleCarried = nullptr;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void JumpActionTriggered();
 	void InteractActionTriggered();
-
 };

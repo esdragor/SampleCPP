@@ -2,6 +2,8 @@
 
 
 #include "MyCharacterCpp.h"
+
+#include "Apple_Cpp.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 
@@ -23,6 +25,8 @@ AMyCharacterCpp::AMyCharacterCpp()
 	//setup a capsule mesh to see the character
 	MeshComp->SetStaticMesh(ConstructorHelpers::FObjectFinder<UStaticMesh>(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'")).Object);
 
+	AttachmentPoint = CreateDefaultSubobject<USceneComponent>(TEXT("AttachmentPoint"));
+	AttachmentPoint->SetupAttachment(MeshComp);
 }
 
 // Called when the game starts or when spawned
@@ -86,12 +90,14 @@ void AMyCharacterCpp::JumpActionTriggered()
 
 void AMyCharacterCpp::InteractActionTriggered()
 {
-	if(IsInBuyerRange && !HasApple)
+	if(IsInBuyerRange && !AppleSpawned)
 	{
-		HasApple = true;
-		UE_LOG(LogTemp, Warning, TEXT("You have an apple"));
+		SpawnApple();
+		
 		//enlever les thunes
 	}
+	PerformLineTrace();
+
 }
 
 // Called to bind functionality to input
@@ -114,5 +120,83 @@ void AMyCharacterCpp::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
+void AMyCharacterCpp::PerformLineTrace()
+{
+	// Obtenir le point de départ et de fin du line trace
+	FVector Start = GetActorLocation(); // Point de départ à partir de la position de l'acteur
+	Start.Z += 50.0f; // Ajouter une hauteur pour éviter de toucher l'acteur lui-même
+	// Obtenir la direction vers laquelle la camera regarde
+	FRotator Rotation = GetControlRotation();
+	FRotator YawRotation(Rotation.Pitch, Rotation.Yaw, 0);
+	FVector ForwardVector = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	FVector End = Start + (ForwardVector * 300.0f); // 1000 unités devant l'acteur
 
+	// Paramètres pour le line trace
+	FHitResult OutHit;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this); // Ignorer l'acteur qui effectue le trace
+
+	// Faire le line trace
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		OutHit,      // Résultat du hit
+		Start,          // Point de départ
+		End,            // Point de fin
+		ECC_Visibility, // Canal de collision (ici visibilité)
+		CollisionParams // Paramètres de collision
+	);
+
+	// Si un objet est touché
+	if (bHit)
+	{
+		// Si l'objet touché est une instance de AApple_Cpp
+		if (!HasApple)
+		{
+			AppleCarried = Cast<AApple_Cpp>(OutHit.GetActor());
+			if(AppleCarried && AppleCarried->IsValidLowLevelFast())
+			{
+				AppleCarried->SetPhysics(false);
+				// Attacher la pomme à l'acteur avec KeepRelativeTransform
+				AppleCarried->AttachToComponent(AttachmentPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				
+				
+
+				//UE_LOG(LogTemp, Warning, TEXT("Pomme attachée à : %s"), *AppleCarried->GetParentComponent()->GetName());
+
+				HasApple = true;
+			}
+		}
+		
+		
+		
+		// Dessiner le trace dans le monde (facultatif, pour debug)
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1, 0, 5);
+	}
+	else if (HasApple)
+	{
+		// Lâcher la pomme
+		AppleCarried->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		AppleCarried->SetPhysics(true);
+		AppleCarried = nullptr;
+		HasApple = false;
+	}
+	else
+	{
+		// Si aucun objet n'est touché, dessiner le trace sans hit
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 5);
+	}
+}
+
+void AMyCharacterCpp::SpawnApple()
+{
+	AppleSpawned = true;
+	// Créer une instance de AApple_Cpp
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	
+	FVector SpawnLocation = GetActorLocation();
+	SpawnLocation += GetActorForwardVector() * 100.f;
+	GetWorld()->SpawnActor(AppleToSpawn, &SpawnLocation, nullptr, SpawnParams);
+}
 
