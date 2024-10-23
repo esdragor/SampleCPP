@@ -29,9 +29,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* CameraComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
-	UStaticMeshComponent* MeshComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AttachmentPoint)
-	USceneComponent* AttachmentPoint;
+	USkeletalMeshComponent* MeshComp;
+	
 
 protected:
 	// Called when the game starts or when spawned

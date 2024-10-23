@@ -19,6 +19,11 @@ void AApple_Cpp::SetPhysics(bool enabled)
 	MeshComp->SetSimulatePhysics(enabled);
 }
 
+void AApple_Cpp::SetCollisions(bool enabled)
+{
+	MeshComp->SetCollisionEnabled(enabled ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+}
+
 // Called when the game starts or when spawned
 void AApple_Cpp::BeginPlay()
 {

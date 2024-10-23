@@ -14,6 +14,7 @@ public:
 	// Sets default values for this actor's properties
 	AApple_Cpp();
 	void SetPhysics(bool enabled);
+	void SetCollisions(bool enabled);
 
 protected:
 	// Called when the game starts or when spawned

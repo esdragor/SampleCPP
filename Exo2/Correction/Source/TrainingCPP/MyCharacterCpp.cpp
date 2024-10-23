@@ -20,13 +20,11 @@ AMyCharacterCpp::AMyCharacterCpp()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp = this->GetMesh();
+	
+	//setup a Arms mesh to see the character
+	MeshComp->SetSkeletalMesh(LoadObject<USkeletalMesh>(nullptr, TEXT("SkeletalMesh'/Game/FirstPersonArms/Character/Mesh/SK_Mannequin_Arms.SK_Mannequin_Arms'")));
 	MeshComp->SetupAttachment(RootComponent);
-	//setup a capsule mesh to see the character
-	MeshComp->SetStaticMesh(ConstructorHelpers::FObjectFinder<UStaticMesh>(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'")).Object);
-
-	AttachmentPoint = CreateDefaultSubobject<USceneComponent>(TEXT("AttachmentPoint"));
-	AttachmentPoint->SetupAttachment(MeshComp);
 }
 
 // Called when the game starts or when spawned
@@ -144,7 +142,17 @@ void AMyCharacterCpp::PerformLineTrace()
 		ECC_Visibility, // Canal de collision (ici visibilité)
 		CollisionParams // Paramètres de collision
 	);
-
+	if (HasApple)
+	{
+		// Lâcher la pomme
+		AppleCarried->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			
+			
+		AppleCarried->SetPhysics(true);
+		AppleCarried->SetCollisions(true);
+		AppleCarried = nullptr;
+		HasApple = false;
+	}
 	// Si un objet est touché
 	if (bHit)
 	{
@@ -155,8 +163,13 @@ void AMyCharacterCpp::PerformLineTrace()
 			if(AppleCarried && AppleCarried->IsValidLowLevelFast())
 			{
 				AppleCarried->SetPhysics(false);
-				// Attacher la pomme à l'acteur avec KeepRelativeTransform
-				AppleCarried->AttachToComponent(AttachmentPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				AppleCarried->SetCollisions(false);
+				// Attacher la pomme à l'acteur via un socket skeletal mesh
+				
+				
+				
+				AppleCarried->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "hand_r");
+				//disable les collisions
 				
 				
 
@@ -171,16 +184,10 @@ void AMyCharacterCpp::PerformLineTrace()
 		// Dessiner le trace dans le monde (facultatif, pour debug)
 		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1, 0, 5);
 	}
-	else if (HasApple)
-	{
-		// Lâcher la pomme
-		AppleCarried->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		AppleCarried->SetPhysics(true);
-		AppleCarried = nullptr;
-		HasApple = false;
-	}
+	
 	else
 	{
+		
 		// Si aucun objet n'est touché, dessiner le trace sans hit
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 5);
 	}
