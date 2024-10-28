@@ -6,6 +6,7 @@
 #include "Apple_Cpp.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMyCharacterCpp::AMyCharacterCpp()
@@ -42,9 +43,16 @@ void AMyCharacterCpp::BeginPlay()
 			Subsystem->AddMappingContext(PlayerInputMappingContext, 0); // Priorité 0 pour ce contexte
 		}
 	}
+	//Get 1 workzone in the world
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWorkZoneCpp::StaticClass(), FoundActors);
+	if (FoundActors.Num() > 0)
+	{
+		WorkZone = Cast<AWorkZoneCpp>(FoundActors[0]);
+	}
 	
+	WorkZone->OnMoneyGenerated.AddDynamic(this, &AMyCharacterCpp::OnMoneyGenerated);
 }
-
 
 
 // Called every frame
@@ -88,14 +96,32 @@ void AMyCharacterCpp::JumpActionTriggered()
 
 void AMyCharacterCpp::InteractActionTriggered()
 {
-	if(IsInBuyerRange && !AppleSpawned)
+	if(IsInBuyerRange && !AppleSpawned && money >= 200)
 	{
 		SpawnApple();
 		
 		//enlever les thunes
+		money-=200;
 	}
 	PerformLineTrace();
 
+}
+
+void AMyCharacterCpp::WorkActionTriggered()
+{
+	if(IsInWorkerRange)
+	{
+		OnWorkAction.ExecuteIfBound();
+		
+	}
+}
+
+void AMyCharacterCpp::StopWorkActionTriggered()
+{
+	if(IsInWorkerRange)
+	{
+		OnStopWorkAction.ExecuteIfBound();
+	}
 }
 
 // Called to bind functionality to input
@@ -114,6 +140,8 @@ void AMyCharacterCpp::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		// Assigner l'Action de saut à une fonction
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AMyCharacterCpp::JumpActionTriggered);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AMyCharacterCpp::InteractActionTriggered);
+		EnhancedInputComponent->BindAction(WorkAction, ETriggerEvent::Started, this, &AMyCharacterCpp::WorkActionTriggered);
+		EnhancedInputComponent->BindAction(WorkAction, ETriggerEvent::Completed, this, &AMyCharacterCpp::StopWorkActionTriggered);
 	}
 
 }
@@ -205,5 +233,10 @@ void AMyCharacterCpp::SpawnApple()
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation += GetActorForwardVector() * 100.f;
 	GetWorld()->SpawnActor(AppleToSpawn, &SpawnLocation, nullptr, SpawnParams);
+}
+
+void AMyCharacterCpp::OnMoneyGenerated()
+{
+	money += 50;
 }
 

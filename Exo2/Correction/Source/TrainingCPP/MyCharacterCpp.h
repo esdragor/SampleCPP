@@ -12,6 +12,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "WorkZoneCpp.h"
 
 #include "MyCharacterCpp.generated.h"
 
@@ -30,6 +31,14 @@ public:
 	UCameraComponent* CameraComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
 	USkeletalMeshComponent* MeshComp;
+
+	//event Action Travail
+	DECLARE_DELEGATE(FWorkAction);
+	FWorkAction OnWorkAction;
+
+	DECLARE_DELEGATE(FStopWorkAction);
+	FStopWorkAction OnStopWorkAction;
+	
 	
 
 protected:
@@ -45,13 +54,20 @@ public:
 	void PerformLineTrace();
 	void SpawnApple();
 
+	UFUNCTION()
+	void OnMoneyGenerated();
+
 	bool IsInBuyerRange = false;
+	bool IsInWorkerRange = false;
 	bool AppleSpawned = false;
 	bool HasApple = false;
+	int money = 0;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AApple_Cpp> AppleToSpawn = nullptr;
+
+	AWorkZoneCpp* WorkZone = nullptr;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -68,6 +84,8 @@ private:
 	UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* WorkAction;
 
 	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	AApple_Cpp* AppleClassToSpawn;*/
@@ -78,4 +96,6 @@ private:
 	void Look(const FInputActionValue& Value);
 	void JumpActionTriggered();
 	void InteractActionTriggered();
+	void WorkActionTriggered();
+	void StopWorkActionTriggered();
 };
