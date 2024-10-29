@@ -1,0 +1,14 @@
+En vous basant sur le projet de l'exo 2
+
+L'objectif est d'avoir des esclaves qui bosse a ta place
+
+Etape 0 : decider de le faire en StateTree ou en BT et expliquer pourquoi ce choix
+Etape 1 : le marchand te propose pour 1.000, un esclave minier et pour 4.000 un esclave cueilleur
+Etape 2 : quand tu achete un esclave minier, il va partir dans la zone rouge et commencer a farmer de l'or a ta place
+Étape 3 : Quand tu achete un esclave cueilleur, il te suit partout
+Étape 4 : si tu achete une pomme et que tu as un esclave cueilleur qui te suit, il arrete de te suivre, prends la pomme et l'amener a la zone jaune avant de revenir te suivre
+Etape 5 : quand tu assez de pommes dans la zone jaune (min 20), un bouton apparait pour upgrade ton shop
+Étape 6 : le shop change de forme et desormais on peut avoir des esclaves soldats
+Etape 7 : Les esclaves soldats patrouillent aleatoirement
+Etape 8 : tu peux definir grace a des waypoints, les points qu'ils sont sense suivre pour leur patrouille
+Etape 9 : toutes les IA s'evitent pour ne pas collisionner entre eux.
